@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { IoCloseOutline } from "react-icons/io5";
+import { WhoToFollowSection } from "../sidebar/who-to-follow-section";
 
 interface RightNewsItem {
   title: string;
@@ -26,7 +28,7 @@ const rightNews: RightNewsItem[] = [
 
 export function ExploreRightSidebar() {
   return (
-    <aside className="sticky top-0 hidden h-screen w-[350px] shrink-0 overflow-y-auto py-2 pl-4 pr-6 lg:block">
+    <aside className="hidden min-h-0 w-[350px] shrink-0 overflow-hidden py-2 pl-4 pr-6 lg:block lg:self-start">
       <div className="flex w-full max-w-[350px] flex-col gap-3">
         <section className="overflow-hidden rounded-2xl border border-[#eff3f4]">
           <div className="flex items-center justify-between px-4 pb-1 pt-3">
@@ -47,25 +49,9 @@ export function ExploreRightSidebar() {
           </ul>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-[#eff3f4]">
-          <h2 className="px-4 pb-1 pt-3 text-[22px] font-black leading-none text-neutral-900">Who to follow</h2>
-          {[
-            { name: "ウチボリンシンペ", handle: "@U_simpe_Mob" },
-            { name: "Queen Bethany", handle: "@queen_bethany" },
-            { name: "Tech Daily JP", handle: "@techdaily_jp" },
-          ].map((user) => (
-            <div key={user.handle} className="flex items-center gap-3 px-4 py-3 hover:bg-black/[0.03]">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-300" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[16px] font-bold text-neutral-900">{user.name}</p>
-                <p className="truncate text-[13px] text-[#536471]">{user.handle}</p>
-              </div>
-              <button type="button" className="rounded-full bg-neutral-900 px-4 py-1.5 text-[13px] font-bold text-white">
-                Follow
-              </button>
-            </div>
-          ))}
-        </section>
+        <Suspense fallback={null}>
+          <WhoToFollowSection />
+        </Suspense>
       </div>
     </aside>
   );

@@ -3,15 +3,25 @@ import {
   IoBarChartOutline,
   IoChatbubbleOutline,
   IoEllipsisHorizontal,
-  IoHeartOutline,
   IoRepeat,
   IoShareOutline,
 } from "react-icons/io5";
 import type { Post } from "@/lib/supabase";
+import type { ViewerProfile } from "@/lib/dal/social";
+import { PostLikeButton } from "@/components/post/post-like-button";
+import { UserAvatar } from "@/components/user/user-avatar";
+import { PostReplyComposeForm } from "./post-reply-compose-form";
+import { ReplyComposeAvatar } from "./reply-compose-avatar";
 
 interface PostDetailContentProps {
   post: Post;
   replies: Post[];
+  viewer: ViewerProfile | null;
+  parentPost?: {
+    id: string;
+    author_name: string;
+    author_handle: string;
+  };
   formatDate: (value: string) => string;
   formatDetailTimestamp: (value: string) => string;
   formatViews: (views: number) => string;
@@ -20,20 +30,21 @@ interface PostDetailContentProps {
 export function PostDetailContent({
   post,
   replies,
+  viewer,
+  parentPost,
   formatDate,
   formatDetailTimestamp,
   formatViews,
 }: PostDetailContentProps) {
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] sm:pb-0">
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] sm:pb-0 lg:flex-none lg:overflow-visible lg:pb-0">
       <article className="border-b border-[#eff3f4] px-4 py-3">
         <div className="flex gap-3">
-          <Link
+          <UserAvatar
+            src={post.author_avatar_url}
+            name={post.author_name}
             href={`/users/${post.author_handle}`}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-bold"
-          >
-            {post.author_handle.slice(0, 1).toUpperCase()}
-          </Link>
+          />
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -48,30 +59,44 @@ export function PostDetailContent({
                 <IoEllipsisHorizontal className="h-5 w-5" />
               </button>
             </div>
+            {parentPost ? (
+              <p className="mt-2 text-[15px] text-[#536471]">
+                返信先:{" "}
+                <Link href={`/posts/${parentPost.id}`} className="text-[#1d9bf0] hover:underline">
+                  @{parentPost.author_handle}
+                </Link>
+                <span className="sr-only">（{parentPost.author_name}）</span>
+              </p>
+            ) : null}
             <p className="mt-3 whitespace-pre-line text-[15px] leading-6 text-neutral-900">{post.body}</p>
             <p className="mt-4 text-[13px] text-[#536471]">
               {formatDetailTimestamp(post.created_at)} ·{" "}
               <span className="font-semibold text-neutral-900">{formatViews(post.views_count)}</span> Views
             </p>
             <div className="mt-3 flex items-center justify-between border-y border-[#eff3f4] py-2 text-[#536471]">
-              <button type="button" className="group flex items-center gap-1.5 text-[14px] hover:text-[#1d9bf0]">
+              <Link
+                href="#reply-compose"
+                className="group flex items-center gap-1.5 text-[14px] hover:text-[#1d9bf0]"
+                aria-label="返信する"
+              >
                 <span className="rounded-full p-2 group-hover:bg-[#1d9bf0]/10">
                   <IoChatbubbleOutline className="h-[20px] w-[20px]" />
                 </span>
                 {post.replies_count}
-              </button>
+              </Link>
               <button type="button" className="group flex items-center gap-1.5 text-[14px] hover:text-emerald-600">
                 <span className="rounded-full p-2 group-hover:bg-emerald-500/10">
                   <IoRepeat className="h-[20px] w-[20px]" />
                 </span>
                 {post.reposts_count}
               </button>
-              <button type="button" className="group flex items-center gap-1.5 text-[14px] hover:text-pink-600">
-                <span className="rounded-full p-2 group-hover:bg-pink-500/10">
-                  <IoHeartOutline className="h-[20px] w-[20px]" />
-                </span>
-                {post.likes_count}
-              </button>
+              <PostLikeButton
+                postId={post.id}
+                likesCount={post.likes_count}
+                likedByMe={post.liked_by_me ?? false}
+                detailPostId={post.id}
+                variant="detail"
+              />
               <button type="button" className="group flex items-center gap-1.5 text-[14px] hover:text-[#1d9bf0]">
                 <span className="rounded-full p-2 group-hover:bg-[#1d9bf0]/10">
                   <IoBarChartOutline className="h-[20px] w-[20px]" />
@@ -91,33 +116,27 @@ export function PostDetailContent({
 
       <div className="border-b border-[#eff3f4] px-4 py-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-bold">
-            You
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="mt-1 text-[20px] text-[#536471]">Post your reply</p>
-          </div>
-          <button
-            type="button"
-            disabled
-            className="rounded-full bg-neutral-300 px-5 py-2 text-[15px] font-bold text-white"
-          >
-            Reply
-          </button>
+          <ReplyComposeAvatar viewer={viewer} />
+          <PostReplyComposeForm parentPostId={post.id} replyToHandle={post.author_handle} />
         </div>
       </div>
 
       <div className="border-b border-[#eff3f4] px-4 py-2 text-[14px] font-semibold text-[#536471]">Replies</div>
 
+      {replies.length === 0 ? (
+        <p className="border-b border-[#eff3f4] px-4 py-6 text-center text-[15px] text-[#536471]">
+          まだ返信はありません。最初の返信を投稿しましょう。
+        </p>
+      ) : null}
+
       {replies.map((reply) => (
         <article key={reply.id} className="border-b border-[#eff3f4] px-4 py-3 transition-colors hover:bg-black/[0.02]">
           <div className="flex gap-3">
-            <Link
+            <UserAvatar
+              src={reply.author_avatar_url}
+              name={reply.author_name}
               href={`/users/${reply.author_handle}`}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sm font-bold"
-            >
-              {reply.author_handle.slice(0, 1).toUpperCase()}
-            </Link>
+            />
             <div className="min-w-0 flex-1">
               <div className="flex min-w-0 flex-nowrap items-baseline gap-x-1 overflow-hidden text-[15px]">
                 <span className="min-w-0 truncate font-bold text-neutral-900">{reply.author_name}</span>
@@ -127,7 +146,28 @@ export function PostDetailContent({
                   {formatDate(reply.created_at)}
                 </time>
               </div>
-              <p className="mt-1 whitespace-pre-line text-[15px] leading-6 text-neutral-900">{reply.body}</p>
+              <Link href={`/posts/${reply.id}`} className="block">
+                <p className="mt-1 whitespace-pre-line text-[15px] leading-6 text-neutral-900">{reply.body}</p>
+              </Link>
+              <div className="mt-2 flex max-w-md items-center gap-2 text-[#536471]">
+                <Link
+                  href={`/posts/${post.id}#reply-compose`}
+                  className="group flex items-center gap-1 text-[13px] transition-colors hover:text-[#1d9bf0]"
+                  aria-label="返信する"
+                >
+                  <span className="rounded-full p-2 group-hover:bg-[#1d9bf0]/10">
+                    <IoChatbubbleOutline className="h-[18px] w-[18px]" />
+                  </span>
+                  {reply.replies_count > 0 ? reply.replies_count : null}
+                </Link>
+                <PostLikeButton
+                  postId={reply.id}
+                  likesCount={reply.likes_count}
+                  likedByMe={reply.liked_by_me ?? false}
+                  detailPostId={post.id}
+                  variant="timeline"
+                />
+              </div>
             </div>
           </div>
         </article>

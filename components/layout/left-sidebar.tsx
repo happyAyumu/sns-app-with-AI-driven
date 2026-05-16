@@ -1,18 +1,21 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IoAdd } from "react-icons/io5";
 import { SiX } from "react-icons/si";
-import { FaFeatherPointed } from "react-icons/fa6";
+import { AppHeaderAuth } from "./app-header-auth";
 import { isInternalSidebarPath, sidebarNavItems } from "./sidebar-nav-items";
+import { LeftSidebarProfileEntry } from "./left-sidebar-profile-entry";
 
 export default function LeftSidebar() {
   const pathname = usePathname();
+  const { user } = useUser();
+  const currentUsername = user?.username?.trim() || null;
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-[72px] shrink-0 flex-col border-r border-[#eff3f4] py-1 pl-1 pr-1 sm:flex">
-      <div className="flex h-full flex-col items-center">
+    <aside className="sticky top-0 hidden h-full min-h-0 w-[260px] shrink-0 flex-col border-r border-[#eff3f4] py-1 pl-2 pr-2 sm:flex">
+      <div className="flex h-full flex-col items-stretch">
         <Link
           href="/"
           className="mb-1 flex h-[52px] w-[52px] items-center justify-center rounded-full transition-colors hover:bg-black/[0.08]"
@@ -21,15 +24,19 @@ export default function LeftSidebar() {
           <SiX className="h-[26px] w-[26px] text-neutral-900" />
         </Link>
 
-        <nav className="flex flex-1 flex-col items-center gap-0.5">
+        <nav className="flex flex-1 flex-col items-stretch gap-0.5">
           {sidebarNavItems.map((item) => {
+            const profileHref = item.id === "profile" && currentUsername ? `/users/${currentUsername}` : item.href;
+            const profileAriaLabel =
+              item.id === "profile" && currentUsername ? `Profile (${currentUsername})` : item.ariaLabel;
+
             const isActive =
               item.id === "home"
                 ? pathname === "/"
                 : item.id === "explore"
                   ? pathname === "/explore" || pathname.startsWith("/explore/")
                   : item.id === "profile"
-                    ? pathname === "/profile" || pathname.startsWith("/profile/")
+                    ? pathname.startsWith("/users/")
                     : false;
 
             const iconShell = (
@@ -53,33 +60,45 @@ export default function LeftSidebar() {
             );
 
             const className =
-              "flex items-center justify-center rounded-full p-3 text-neutral-900 transition-colors hover:bg-black/[0.08]";
+              "flex w-full items-center gap-4 rounded-full px-3 py-2 text-neutral-900 transition-colors hover:bg-black/[0.08]";
+            const labelClass = `min-w-0 truncate text-[20px] leading-6 ${isActive ? "font-bold" : "font-normal"}`;
+            const content = (
+              <>
+                {iconShell}
+                <span className={labelClass}>{item.drawerLabel}</span>
+              </>
+            );
+
+            if (item.id === "profile") {
+              return (
+                <LeftSidebarProfileEntry
+                  key={item.id}
+                  href={profileHref}
+                  ariaLabel={profileAriaLabel}
+                  className={className}
+                  iconShell={content}
+                />
+              );
+            }
 
             if (isInternalSidebarPath(item.href)) {
               return (
                 <Link key={item.id} href={item.href} aria-label={item.ariaLabel} className={className}>
-                  {iconShell}
+                  {content}
                 </Link>
               );
             }
 
             return (
               <a key={item.id} href={item.href} aria-label={item.ariaLabel} className={className}>
-                {iconShell}
+                {content}
               </a>
             );
           })}
-          <div className="mb-4 mt-auto flex justify-center">
-            <button
-              type="button"
-              className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-neutral-900 text-white shadow-sm transition-opacity hover:opacity-90"
-              aria-label="Post"
-            >
-              <IoAdd className="absolute left-3 top-3 h-3.5 w-3.5 stroke-[3]" aria-hidden />
-              <FaFeatherPointed className="relative h-[22px] w-[22px] translate-x-1 translate-y-1" aria-hidden />
-            </button>
-          </div>
         </nav>
+        <div className="mt-3 flex items-center gap-2 border-t border-[#eff3f4] px-3 pb-2 pt-3">
+          <AppHeaderAuth />
+        </div>
       </div>
     </aside>
   );

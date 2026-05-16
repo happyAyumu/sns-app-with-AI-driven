@@ -4,12 +4,15 @@ export interface Post {
   id: string;
   author_name: string;
   author_handle: string;
+  author_avatar_url?: string | null;
   body: string;
   created_at: string;
   is_published: boolean;
   replies_count: number;
   reposts_count: number;
   likes_count: number;
+  /** ログインユーザーがいいね済み（未ログイン・未取得時は undefined） */
+  liked_by_me?: boolean;
   views_count: number;
   poll?: {
     options: string[];
@@ -176,6 +179,7 @@ class MockPostQueryBuilder {
       const av = a[column];
       const bv = b[column];
       if (av === bv) return 0;
+      if (av == null || bv == null) return 0;
       if (av === undefined || bv === undefined) return 0;
       return av > bv ? direction : -direction;
     });

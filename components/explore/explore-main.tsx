@@ -5,7 +5,7 @@ import { ExploreTopicTabs } from "./explore-topic-tabs";
 
 export function ExploreMain() {
   return (
-    <section className="min-h-screen">
+    <section className="min-h-0">
       <ExploreSearchHeader />
       <ExploreTopicTabs />
       <ExploreHeroCard />

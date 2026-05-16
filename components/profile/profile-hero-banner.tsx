@@ -1,4 +1,17 @@
-export function ProfileHeroBanner() {
+interface ProfileHeroBannerProps {
+  headerUrl?: string | null;
+}
+
+export function ProfileHeroBanner({ headerUrl }: ProfileHeroBannerProps) {
+  if (headerUrl) {
+    return (
+      <div className="relative h-[170px] w-full overflow-hidden bg-neutral-200">
+        {/* eslint-disable-next-line @next/next/no-img-element -- Supabase Storage public URL */}
+        <img src={headerUrl} alt="" className="h-full w-full object-cover" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-[170px] w-full overflow-hidden bg-gradient-to-b from-sky-400 via-sky-500 to-sky-700">
       <div
