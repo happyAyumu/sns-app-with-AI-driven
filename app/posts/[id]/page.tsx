@@ -5,8 +5,8 @@ import { IoArrowBack } from "react-icons/io5";
 import LeftSidebar from "../../../components/layout/left-sidebar";
 import { MobileBottomNav } from "../../../components/layout/mobile-bottom-nav";
 import { PostDetailContent } from "../../../components/post-detail/post-detail-content";
-import RightSidebar from "../../../components/layout/right-sidebar";
-import { fetchPostDetailById } from "../../../lib/dal/social";
+import { MainWithRightSidebar } from "../../../components/layout/main-with-right-sidebar";
+import { fetchPostDetailById, fetchViewerProfile } from "../../../lib/dal/social";
 import {
   formatPostDate,
   formatPostDetailTimestamp,
@@ -27,17 +27,17 @@ export async function generateMetadata({ params }: PostDetailPageProps): Promise
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { id } = await params;
-  const detail = await fetchPostDetailById(id);
+  const [detail, viewer] = await Promise.all([fetchPostDetailById(id), fetchViewerProfile()]);
 
   if (!detail) notFound();
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-white text-neutral-900">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white text-neutral-900">
       <div className="mx-auto flex min-h-0 w-full max-w-[1265px] flex-1 justify-center">
         <LeftSidebar />
-        <main className="relative flex min-h-0 w-full max-w-[600px] flex-1 flex-col overflow-hidden border-x border-[#eff3f4] max-sm:border-x-0">
-          <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="flex items-center gap-3 border-b border-[#eff3f4] px-3 py-2">
+        <MainWithRightSidebar>
+          <section className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-none lg:overflow-visible">
+            <div className="flex shrink-0 items-center gap-3 border-b border-[#eff3f4] px-3 py-2">
               <Link
                 href="/"
                 className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-black/[0.06]"
@@ -50,13 +50,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             <PostDetailContent
               post={detail.post}
               replies={detail.replies}
+              viewer={viewer}
+              parentPost={detail.parentPost}
               formatDate={formatPostDate}
               formatDetailTimestamp={formatPostDetailTimestamp}
               formatViews={formatPostViews}
             />
           </section>
-        </main>
-        <RightSidebar />
+        </MainWithRightSidebar>
       </div>
       <MobileBottomNav />
     </div>

@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { IoSearchOutline } from "react-icons/io5";
+import { WhoToFollowSection } from "../sidebar/who-to-follow-section";
 
 export default function RightSidebar() {
   return (
-    <aside className="sticky top-0 hidden h-screen w-[350px] shrink-0 overflow-y-auto py-2 pl-4 pr-6 lg:block">
+    <aside className="hidden min-h-0 w-[350px] shrink-0 overflow-hidden py-2 pl-4 pr-6 lg:block lg:self-start">
       <div className="flex w-full max-w-[350px] flex-col gap-3">
         <div className="relative">
           <IoSearchOutline
@@ -83,6 +85,10 @@ export default function RightSidebar() {
             Show more
           </a>
         </section>
+
+        <Suspense fallback={null}>
+          <WhoToFollowSection />
+        </Suspense>
 
         <footer className="flex flex-wrap gap-x-3 gap-y-1 px-2 text-[13px] text-[#536471]">
           <a href="#" className="hover:underline">

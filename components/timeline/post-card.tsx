@@ -1,12 +1,13 @@
 import Link from "next/link";
 import type { Post } from "../../lib/supabase";
+import { UserAvatar } from "@/components/user/user-avatar";
 import {
   IoBarChartOutline,
   IoChatbubbleOutline,
-  IoHeartOutline,
   IoRepeat,
   IoShareOutline,
 } from "react-icons/io5";
+import { PostLikeButton } from "../post/post-like-button";
 
 interface PostCardProps {
   post: Post;
@@ -18,13 +19,12 @@ export function PostCard({ post, formatDate, formatViews }: PostCardProps) {
   return (
     <article className="border-b border-[#eff3f4] px-3 py-2.5 transition-colors hover:bg-black/[0.02] sm:px-4 sm:py-3">
       <div className="flex gap-2.5 sm:gap-3">
-        <Link
+        <UserAvatar
+          src={post.author_avatar_url}
+          name={post.author_name}
           href={`/users/${post.author_handle}`}
-          className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-center text-lg leading-[2.75rem] transition-opacity hover:opacity-80 sm:h-10 sm:w-10 sm:leading-10"
-          aria-label={`${post.author_name}のプロフィール`}
-        >
-          {post.author_handle.slice(0, 1).toUpperCase()}
-        </Link>
+          className="h-11 w-11 sm:h-10 sm:w-10"
+        />
         <div className="min-w-0 flex-1">
           <Link href={`/posts/${post.id}`} className="block">
             <div className="flex min-w-0 flex-nowrap items-baseline gap-x-1 overflow-hidden text-[15px]">
@@ -56,15 +56,16 @@ export function PostCard({ post, formatDate, formatViews }: PostCardProps) {
           </Link>
 
           <div className="mt-3 flex max-w-md items-center justify-between text-[#536471]">
-            <button
-              type="button"
+            <Link
+              href={`/posts/${post.id}`}
               className="group flex items-center gap-1 text-[13px] transition-colors hover:text-[#1d9bf0]"
+              aria-label={`${post.replies_count}件の返信を見る`}
             >
               <span className="rounded-full p-2 group-hover:bg-[#1d9bf0]/10">
                 <IoChatbubbleOutline className="h-[18px] w-[18px]" />
               </span>
               {post.replies_count}
-            </button>
+            </Link>
             <button
               type="button"
               className="group flex items-center gap-1 text-[13px] transition-colors hover:text-emerald-600"
@@ -74,15 +75,12 @@ export function PostCard({ post, formatDate, formatViews }: PostCardProps) {
               </span>
               {post.reposts_count}
             </button>
-            <button
-              type="button"
-              className="group flex items-center gap-1 text-[13px] transition-colors hover:text-pink-600"
-            >
-              <span className="rounded-full p-2 group-hover:bg-pink-500/10">
-                <IoHeartOutline className="h-[18px] w-[18px]" />
-              </span>
-              {post.likes_count}
-            </button>
+            <PostLikeButton
+              postId={post.id}
+              likesCount={post.likes_count}
+              likedByMe={post.liked_by_me ?? false}
+              variant="timeline"
+            />
             <button
               type="button"
               className="group flex items-center gap-1 text-[13px] transition-colors hover:text-[#1d9bf0]"

@@ -4,14 +4,15 @@ import { IoArrowBack, IoBanOutline, IoSearchOutline } from "react-icons/io5";
 interface ProfileTopBarProps {
   displayName: string;
   postCountLabel: string;
+  backHref?: string;
 }
 
-export function ProfileTopBar({ displayName, postCountLabel }: ProfileTopBarProps) {
+export function ProfileTopBar({ displayName, postCountLabel, backHref = "/" }: ProfileTopBarProps) {
   return (
     <header className="z-30 flex shrink-0 items-center justify-between gap-3 border-b border-[#eff3f4] bg-white/95 px-3 py-2 backdrop-blur-md">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Link
-          href="/"
+          href={backHref}
           className="-ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/[0.08]"
           aria-label="戻る"
         >

@@ -1,25 +1,21 @@
-import Link from "next/link";
 import { MobileHomeHeader } from "../layout/mobile-home-header";
 import type { Post } from "../../lib/supabase";
+import type { ViewerProfile } from "@/lib/dal/social";
+import { ComposeAvatar } from "@/components/user/compose-avatar";
 import { PostCard } from "./post-card";
 import { formatPostDate, formatPostViews } from "../../lib/formatters/post";
-import {
-  IoImageOutline,
-  IoLocationOutline,
-  IoStatsChartOutline,
-} from "react-icons/io5";
-import { MdOutlineGifBox } from "react-icons/md";
-import { TbMoodSmile, TbCalendarTime } from "react-icons/tb";
+import { TimelineComposeForm } from "./timeline-compose-form";
 
 interface TimelineFeedProps {
   initialPosts: Post[];
+  viewer: ViewerProfile | null;
 }
 
-export default function TimelineFeed({ initialPosts }: TimelineFeedProps) {
+export default function TimelineFeed({ initialPosts, viewer }: TimelineFeedProps) {
   const newPostsCount = Math.min(35, initialPosts.length + 12);
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <section className="flex min-h-0 flex-col">
       <div className="sticky top-0 z-20 shrink-0 border-b border-[#eff3f4] bg-white/95 backdrop-blur-md sm:bg-white/85">
         <MobileHomeHeader />
         <header>
@@ -41,80 +37,11 @@ export default function TimelineFeed({ initialPosts }: TimelineFeedProps) {
         </header>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] sm:pb-0">
+      <div>
         <div className="border-b border-[#eff3f4] px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex gap-2.5 sm:gap-3">
-            <Link
-              href="/profile"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-100 text-lg leading-none transition-opacity hover:opacity-80 sm:h-10 sm:w-10"
-              aria-label="プロフィールページへ"
-            >
-              🐕
-            </Link>
-            <div className="min-w-0 flex-1">
-              <label htmlFor="home-compose" className="sr-only">
-                What&apos;s happening?
-              </label>
-              <textarea
-                id="home-compose"
-                rows={2}
-                placeholder="What's happening?"
-                className="w-full resize-none border-0 bg-transparent text-[18px] text-neutral-900 placeholder:text-[#536471] focus:outline-none focus:ring-0 sm:text-[20px]"
-              />
-              <div className="mt-3 flex items-center justify-between border-t border-[#eff3f4] pt-3">
-                <div className="flex items-center gap-0.5 text-[#1d9bf0]">
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#1d9bf0]/10"
-                    aria-label="Add image"
-                  >
-                    <IoImageOutline className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#1d9bf0]/10"
-                    aria-label="GIF"
-                  >
-                    <MdOutlineGifBox className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#1d9bf0]/10"
-                    aria-label="Poll"
-                  >
-                    <IoStatsChartOutline className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#1d9bf0]/10"
-                    aria-label="Emoji"
-                  >
-                    <TbMoodSmile className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#1d9bf0]/10"
-                    aria-label="Schedule"
-                  >
-                    <TbCalendarTime className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#1d9bf0]/10"
-                    aria-label="Location"
-                  >
-                    <IoLocationOutline className="h-5 w-5" />
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  disabled
-                  className="rounded-full bg-neutral-500 px-4 py-1.5 text-[15px] font-bold text-white opacity-60"
-                >
-                  Post
-                </button>
-              </div>
-            </div>
+            <ComposeAvatar viewer={viewer} className="h-11 w-11 sm:h-10 sm:w-10" />
+            <TimelineComposeForm />
           </div>
         </div>
 

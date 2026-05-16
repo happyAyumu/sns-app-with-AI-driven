@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { SiX } from "react-icons/si";
+import { ComposeAvatar } from "@/components/user/compose-avatar";
 import { MobileNavDrawer } from "./mobile-nav-drawer";
 
 export function MobileHomeHeader() {
@@ -14,12 +15,12 @@ export function MobileHomeHeader() {
         <div className="flex justify-start">
           <button
             type="button"
-            className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-100 text-base leading-none transition-opacity hover:opacity-80"
+            className="shrink-0 overflow-hidden rounded-full transition-opacity hover:opacity-80"
             aria-label="メニューを開く"
             aria-expanded={drawerOpen}
             onClick={() => setDrawerOpen(true)}
           >
-            🐕
+            <ComposeAvatar viewer={null} className="h-8 w-8" href={null} />
           </button>
         </div>
         <div className="flex justify-center">
